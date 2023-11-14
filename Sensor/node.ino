@@ -1,14 +1,12 @@
 #include <ESP8266WiFi.h>
-#include <PubSubClient.h>    
-#include <PulseSensorPlayground.h> 
+#include <PubSubClient.h>
 
-#define USE_ARDUINO_INTERRUPTS true  
-#define ID_MQTT "Monitoramento"
-#define TOPIC_PUB "ifg/heartbpm"
-#define TOPICSTATE_PUB "ifg/heartstate"
+//MQTT Subscribe
+#define ID_MQTT  "SaaSSD" 
+#define TOPIC_PUB "IFG/heart"
 
 //WiFi
-const char* SSID = "NumbERS";
+const char* SSID = "NumbERS";   
 const char* PASSWORD = "Numb3R5_00";
 WiFiClient wifiClient;
 
@@ -17,7 +15,7 @@ const char* BROKER_MQTT = "192.168.0.111";
 int BROKER_PORT = 1883;
 
 
-PubSubClient MQTT(wifiClient);
+PubSubClient MQTT(wifiClient); 
 
 void mantemConexoes();
 void conectaWiFi();
@@ -28,34 +26,24 @@ void setup() {
 
   //pinMode(Rele1, OUTPUT);
 
-  Serial.begin(115200);
+  Serial.begin(9600);
   conectaWiFi();
-  MQTT.setServer(BROKER_MQTT, BROKER_PORT);     
-  
-  pulseSensor.analogInput(PulseWire);   
-  pulseSensor.blinkOnPulse(LED);
-  pulseSensor.setThreshold(Threshold);   
-
-  
-  if (pulseSensor.begin()) {
-    Serial.println("O sensor conseguiu iniciar com sucesso ♥");
-  }
+  MQTT.setServer(BROKER_MQTT, BROKER_PORT);
 }
 
 void loop() {
-
+ 
   mantemConexoes();
-  executaVerificacao();
-  MQTT.loop();
-
+  lerDados();
+  MQTT.loop();  
 }
 
 void mantemConexoes() {
-
+  
   if (!MQTT.connected()) {
     conectaMQTT();
   }
-  conectaWiFi();  //se não há conexão com o WiFI, a conexão é refeita
+    conectaWiFi(); //se não há conexão com o WiFI, a conexão é refeita
 }
 
 void conectaWiFi() {
@@ -67,7 +55,7 @@ void conectaWiFi() {
   Serial.print(SSID);
   Serial.println("  Aguarde!");
 
-  WiFi.begin(SSID, PASSWORD);  // Conecta na rede WI-FI
+  WiFi.begin(SSID, PASSWORD); // Conecta na rede WI-FI
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);
     Serial.print(".");
@@ -86,34 +74,14 @@ void conectaMQTT() {
     Serial.println(BROKER_MQTT);
     if (MQTT.connect(ID_MQTT)) {
       Serial.println("Conectado ao Broker com sucesso!");
-    } else {
+    }
+    else {
       Serial.println("Nao foi possivel se conectar ao broker.");
       Serial.println("Nova tentatica de conexao em 10s");
-      delay(10000);
+      delay(10000); 
     }
   }
 }
-
-void executaVerificacao() {
-  
-    if (pulseSensor.sawStartOfBeat()) {            
-      int BPM = pulseSensor.getBeatsPerMinute();  
-                                              
-      Serial.println("♥ Um batimento cardíaco foi detectado ♥"); 
-      Serial.print("BPM: ");                       
-      Serial.println(BPM);
-      publicaMensagem(TOPIC_PUB, BPM);
-
-    Serial.println("");                       
-  }
-  Serial.println("-----------------------------------------------------------");       
-  
-  delay(1000);
-  delay(1000);
-  delay(1000);               
-  }
-}
-
 
 void publicaMensagem(const char* topico, const char* mensagem) {
   if (MQTT.publish(topico, mensagem)) {
@@ -121,5 +89,14 @@ void publicaMensagem(const char* topico, const char* mensagem) {
     Serial.println(topico);
   } else {
     Serial.println("Falha ao publicar a mensagem.");
+  }
+}
+
+void lerDados(){
+  if (Serial.available()) {
+    String data = Serial.readStringUntil('\n');
+    Serial.println("Dados recebidos do Arduino: " + data);
+    const char* bpm = data.c_str();
+    publicaMensagem(TOPIC_PUB, bpm);
   }
 }
