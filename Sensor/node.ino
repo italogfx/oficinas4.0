@@ -11,7 +11,7 @@ const char* PASSWORD = "Numb3R5_00";
 WiFiClient wifiClient;
 
 //MQTT Server
-const char* BROKER_MQTT = "192.168.0.111";
+const char* BROKER_MQTT = "192.168.0.150";
 int BROKER_PORT = 1883;
 
 
