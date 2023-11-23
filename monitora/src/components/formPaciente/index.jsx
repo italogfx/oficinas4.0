@@ -3,11 +3,11 @@ import { StyleSheet, Text, View} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useState } from 'react';
 import { Link, useNavigation } from '@react-navigation/native';
-import { Button, Provider as PaperProvider } from 'react-native-paper';
+import { Button, Appbar,Provider as PaperProvider } from 'react-native-paper';
 import * as React from 'react';
 import { TextInput,} from 'react-native-paper';
 
-export default function Form() {
+export default function FormPaciente() {
 
     const [email, setEmail] = React.useState("");
     const [nome, setNome] = React.useState("");
@@ -15,8 +15,16 @@ export default function Form() {
     const [senha, setSenha] = React.useState("");
     const [selectedValue, setSelectedValue] = useState('option1');
     const navigation = useNavigation();
+    
   return (
     <PaperProvider>
+        <Appbar.Header>
+        <Appbar.Content title="Monitora" subtitle="Subtítulo" />
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={{ marginRight: 16 ,borderBottomWidth: 1, }} onPress={() => navigation.navigate('Principal')} >Meus pacientes</Text>
+          <Text style={{ marginRight: 16,borderBottomWidth: 1,}} onPress={() => navigation.navigate('CadastroPaciente')}>Cadastrar Pacientes</Text>
+        </View>
+      </Appbar.Header>
       <View style={styles.container}>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <TextInput style={styles.caixaDeTexto}
@@ -25,26 +33,21 @@ export default function Form() {
       onChangeText={text => setNome(text)}
     />
     <TextInput style={styles.caixaDeTexto}
-      label="Especialidade"
+      label="Idade"
       value={nome}
       onChangeText={text => setNome(text)}
     />
       <TextInput style={styles.caixaDeTexto}
-      label="Email"
+      label="Batimento Minimo"
       value={email}
       onChangeText={text => setText(text)}
     />
       <TextInput style={styles.caixaDeTexto}
-      label="Senha"
+      label="Batimento Máximo"
       value={senha}
       onChangeText={text => setText(text)}
     />
-     <TextInput style={styles.caixaDeTexto}
-      label="Confirmar a senha"
-      value={senha}
-      onChangeText={text => setText(text)}
-    />
-        <Button mode="contained" onPress={() => navigation.navigate('Inicio')} 
+        <Button mode="contained" onPress={() => navigation.navigate('Principal')} 
         style={{ backgroundColor: '#1F76E2', marginTop: 20}} >
           Cadastrar
         </Button>

@@ -1,66 +1,96 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image ,TextInput, } from 'react-native';
-import { useState } from 'react';
-import { Button, Provider, Drawer , PaperProvider } from 'react-native-paper';
-import * as React from 'react';
+import React, { useState } from 'react';
+import { View, Image, TextInput, StatusBar, StyleSheet , Text, ScrollView } from 'react-native';
+import { Card, Title,Paragraph,Button, Appbar, Provider as PaperProvider } from 'react-native-paper';
+import {useNavigation } from '@react-navigation/native';
+
 
 export default function Home() {
+  const mensage = '80 BPM';
+  const navigation = useNavigation();
 
-    const mensage = '80 BPM'
-
-  const [active, setActive] = React.useState('');
-
+  const databaseData = [
+    { id: 1, title: 'Eva Maria', description: '80 BPM' },
+    { id: 2, title: 'Isabel', description: '120 BPM' },
+  ];
 
 
   return (
-     <PaperProvider>
-      <Drawer.Section title="Some title">
-      <Drawer.Item
-        label="First Item"
-        active={active === 'first'}
-        onPress={() => setActive('first')}
-      />
-      <Drawer.Item
-        label="Second Item"
-        active={active === 'second'}
-        onPress={() => setActive('second')}
-      />
-    </Drawer.Section>
-     <View style={styles.container}>
-     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-     <Image source={require('../../../assets/logo.png')} style={{ width: 200, height: 200 }}/>
-      <StatusBar style="auto" />
-      <TextInput
-        style={styles.caixaDeTexto}
-        multiline
-        value={mensage}
-      />
-       <Button mode="contained"  style={{ backgroundColor: '#1F76E2' }} >
-         Atualizar
-       </Button>
-     </View>
-   </View>
-   </PaperProvider>   
+    <PaperProvider >
+      <View style={{ flex: 1 }}>
+      <Appbar.Header>
+        <Appbar.Content title="Monitora" subtitle="Subtítulo" />
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={{ marginRight: 16 ,borderBottomWidth: 1, }} onPress={() => navigation.navigate('Principal')} >Meus pacientes</Text>
+          <Text style={{ marginRight: 16,borderBottomWidth: 1,}} onPress={() => navigation.navigate('CadastroPaciente')}>Cadastrar Pacientes</Text>
+        </View>
+      </Appbar.Header>
+
+        {/* Main Content */}
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+
+        <ScrollView contentContainerStyle={styles.bomdia}>
+        {databaseData.map((data) => (
+          <Card key={data.id} style={styles.card}>
+            <Card.Content>
+              <Title>{data.title}</Title>
+              <Paragraph>{data.description}</Paragraph>
+            </Card.Content>
+          </Card>
+        ))}
+      </ScrollView>
+          {/* <StatusBar style="auto" />
+          <TextInput
+            style={{ height: 120, borderColor: 'gray', borderWidth: 1, borderRadius: 100, paddingHorizontal: 8, paddingTop: 8, marginBottom: 20 }}
+            multiline
+            value={mensage}
+          />
+          <Button mode="contained" style={{ backgroundColor: '#1F76E2' }}>
+            Atualizar
+          </Button> */}
+        </View>
+      </View>
+    </PaperProvider>
   );
 }
 
+
 const styles = StyleSheet.create({
+  bomdia: {
+    padding: 36,
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    width: 600,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  titulo:{
+  titulo: {
     fontSize: 60,
     fontWeight: 'bold',
-    color:'red'
+    color: 'red',
   },
   caixaDeTexto: {
     height: 120,
     borderColor: 'gray',
     borderWidth: 1,
-    borderRadius: 100, // Metade da largura ou altura para criar uma borda circular
+    borderRadius: 100, 
     paddingHorizontal: 8,
     paddingTop: 8,
     marginBottom: 20,
