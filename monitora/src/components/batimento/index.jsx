@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Image, TextInput, StatusBar, StyleSheet , Text, ScrollView } from 'react-native';
 import { Card, Title,Paragraph,Button, Appbar, Provider as PaperProvider } from 'react-native-paper';
 import {useNavigation } from '@react-navigation/native';
+import { WebSocket } from 'react-native-gifted-chat'; 
 
 
 export default function Home() {
@@ -12,6 +13,36 @@ export default function Home() {
     { id: 1, title: 'Eva Maria', description: '80 BPM' },
     { id: 2, title: 'Isabel', description: '120 BPM' },
   ];
+  
+  const [latestMessage, setLatestMessage] = useState('');
+
+  useEffect(() => {
+    // WebSocket connection to the server
+    const ws = new WebSocket('ws://localhost:3000');
+
+    // Event handler for receiving messages from the server
+    ws.onmessage = (event) => {
+      const data = event.data;
+      console.log('Received message from server:', data);
+      setLatestMessage(data);
+    };
+
+    // Event handler for connection open
+    ws.onopen = () => {
+      console.log('WebSocket connection opened');
+    };
+
+    // Event handler for connection close
+    ws.onclose = (event) => {
+      console.log('WebSocket connection closed:', event.reason);
+    };
+
+    // Clean up the WebSocket on component unmount
+    return () => {
+      ws.close();
+    };
+  }, []); // Empty dependency array ensures the effect runs only once on mount
+
 
 
   return (
@@ -24,10 +55,12 @@ export default function Home() {
           <Text style={{ marginRight: 16,borderBottomWidth: 1,}} onPress={() => navigation.navigate('CadastroPaciente')}>Cadastrar Pacientes</Text>
         </View>
       </Appbar.Header>
-
-        {/* Main Content */}
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View>
 
+        <Text>Latest Message: {latestMessage}</Text>
+      <Button title="Fetch Data" onPress={() => console.log('Fetch data button pressed')} />
+          </View>
         <ScrollView contentContainerStyle={styles.bomdia}>
         {databaseData.map((data) => (
           <Card key={data.id} style={styles.card}>
@@ -38,15 +71,6 @@ export default function Home() {
           </Card>
         ))}
       </ScrollView>
-          {/* <StatusBar style="auto" />
-          <TextInput
-            style={{ height: 120, borderColor: 'gray', borderWidth: 1, borderRadius: 100, paddingHorizontal: 8, paddingTop: 8, marginBottom: 20 }}
-            multiline
-            value={mensage}
-          />
-          <Button mode="contained" style={{ backgroundColor: '#1F76E2' }}>
-            Atualizar
-          </Button> */}
         </View>
       </View>
     </PaperProvider>
