@@ -1,18 +1,14 @@
-const express = require('express');
-const http = require('http');
 const mqtt = require('mqtt');
-const WebSocket = require('ws');
-
+const express = require('express');
 const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const port = 3000; // ou a porta que você preferir
 
-const brokerUrl = 'mqtt://34.151.224.105';
+const brokerUrl = 'mqtt://34.151.202.171';
 const topico = 'IFG/heart';
 
-const client = mqtt.connect(brokerUrl);
+let lastBPM = null;
 
-let latestMessage = ''; // Variable to store the latest message
+const client = mqtt.connect(brokerUrl);
 
 client.on('connect', () => {
   console.log('Conectado ao broker MQTT');
@@ -24,39 +20,30 @@ client.on('connect', () => {
 });
 
 client.on('message', (receivedTopic, message) => {
-  console.log('Mensagem recebida no tópico:', receivedTopic);
-  console.log('BPM:', message.toString());
-  latestMessage = message.toString();
-  broadcastUpdate(latestMessage); // Send the latest message to connected clients
+  const bpm = message.toString();
+  lastBPM = bpm;
+  console.log('Último BPM:', lastBPM);
 });
 
-client.on('error', (error) => {
-  console.error('Erro:', error);
-});
-
-// WebSocket connection
-wss.on('connection', (ws) => {
-  // Send the latest message when a WebSocket client connects
-  ws.send(latestMessage);
-
-  ws.on('message', (message) => {
-    console.log(`Received message: ${message}`);
-  });
-});
-
-app.get('/', (req, res) => {
-  res.send(`Latest Message: ${latestMessage}`);
-});
-
-server.listen(3000, () => {
-  console.log('Server listening on port 3000');
-});
-
-function broadcastUpdate(data) {
-  // Broadcast the data to all connected WebSocket clients
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(data);
+function obterUltimoBPM(req, res) {
+  try {
+    if (lastBPM !== null) {
+      res.status(200).json({ bpm: lastBPM });
+    } else {
+      res.status(404).json({ error: 'Nenhum dado de BPM recebido ainda.' });
     }
-  });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
 }
+
+// Rota para obter o último BPM
+app.get('/obterUltimoBPM', obterUltimoBPM);
+
+app.listen(port, () => {
+  console.log(`Servidor HTTP está ouvindo na porta ${port}`);
+});
+
+module.exports = {
+  obterUltimoBPM,
+};

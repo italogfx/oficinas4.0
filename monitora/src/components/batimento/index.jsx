@@ -13,36 +13,30 @@ export default function Home() {
     { id: 1, title: 'Eva Maria', description: '80 BPM' },
     { id: 2, title: 'Isabel', description: '120 BPM' },
   ];
-  
-  const [latestMessage, setLatestMessage] = useState('');
 
+  const [ultimoBPM, setUltimoBPM] = useState(null);
+
+  const obterUltimoBPM = async () => {
+    try {
+      const response = await fetch('http://192.168.1.229:3000/obterUltimoBPM');
+      const data = await response.json();
+      setUltimoBPM(data.bpm);
+    } catch (error) {
+      console.error('Erro ao obter último BPM:', error);
+    }
+  };
   useEffect(() => {
-    // WebSocket connection to the server
-    const ws = new WebSocket('ws://localhost:3000');
+    // Chama ao montar o componente
+    obterUltimoBPM();
 
-    // Event handler for receiving messages from the server
-    ws.onmessage = (event) => {
-      const data = event.data;
-      console.log('Received message from server:', data);
-      setLatestMessage(data);
-    };
+    // Atualiza automaticamente a cada 5 segundos (ajuste conforme necessário)
+    const intervalId = setInterval(() => {
+      obterUltimoBPM();
+    }, 5000);
 
-    // Event handler for connection open
-    ws.onopen = () => {
-      console.log('WebSocket connection opened');
-    };
-
-    // Event handler for connection close
-    ws.onclose = (event) => {
-      console.log('WebSocket connection closed:', event.reason);
-    };
-
-    // Clean up the WebSocket on component unmount
-    return () => {
-      ws.close();
-    };
-  }, []); // Empty dependency array ensures the effect runs only once on mount
-
+    // Limpa o intervalo quando o componente é desmontado
+    return () => clearInterval(intervalId);
+  }, []); 
 
 
   return (
@@ -51,22 +45,17 @@ export default function Home() {
       <Appbar.Header>
         <Appbar.Content title="Monitora" subtitle="Subtítulo" />
         <View style={{ flexDirection: 'row' }}>
-          <Text style={{ marginRight: 16 ,borderBottomWidth: 1, }} onPress={() => navigation.navigate('Principal')} >Meus pacientes</Text>
-          <Text style={{ marginRight: 16,borderBottomWidth: 1,}} onPress={() => navigation.navigate('CadastroPaciente')}>Cadastrar Pacientes</Text>
+        <Button style={{ marginRight: 16 ,borderBottomWidth: 1, color: 'black' }} onPress={() => navigation.navigate('Principal')} >Meus Pacientes</Button>
+        <Button style={{ marginRight: 16 ,borderBottomWidth: 1, color: 'black' }} onPress={() => navigation.navigate('CadastroPaciente')} >Cadastrar Pacientes</Button>
         </View>
       </Appbar.Header>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <View>
-
-        <Text>Latest Message: {latestMessage}</Text>
-      <Button title="Fetch Data" onPress={() => console.log('Fetch data button pressed')} />
-          </View>
         <ScrollView contentContainerStyle={styles.bomdia}>
         {databaseData.map((data) => (
           <Card key={data.id} style={styles.card}>
             <Card.Content>
               <Title>{data.title}</Title>
-              <Paragraph>{data.description}</Paragraph>
+              <Paragraph>Último BPM: {ultimoBPM !== null ? ultimoBPM : 'Nenhum dado recebido ainda.'}</Paragraph>
             </Card.Content>
           </Card>
         ))}
@@ -120,3 +109,4 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
+

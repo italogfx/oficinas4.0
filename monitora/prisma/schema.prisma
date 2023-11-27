@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model sua_tabela {
+  id    Int     @id @default(autoincrement())
+  nome  String? @db.VarChar(255)
+  idade String? @db.VarChar(20)
+  min   String? @db.VarChar(20)
+  max   String? @db.VarChar(20)
+}
