@@ -86,25 +86,41 @@
 // });
 import React, { useState } from 'react';
 import { SMS } from 'expo-sms'; // Import the SMS module
-import { View, TextInput, Button } from 'react-native';
+import { View, TextInput, Button, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications'
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 const FormPaciente = () => {
 
-  const handleNotificationLocal = async ()=>{
-    await Notifications.scheduleNotificationAsync({
-      content:{
-        title: 'Notificação local',
-        body: ' parabens bom dia '
-      },
-      trigger: {
-        seconds: 2
+  const handleCallNotifications = async() => {
+    const {status} = await Notifications.getPermissionsAsync();
+
+    if(status !== 'granted'){
+      Alert.alert("Deu ruim")
+      return
+    }
+    console.log("bom dia")
+    await Notifications.scheduleNotificationAsync(
+      {
+        content:{
+          title: "bom dia",
+          body:"recebido"
+        },
+        trigger:{
+          seconds:5,
+        }
       }
-    })
+    )
   }
   return(
     <View>
-      <Button title='enviar' onPress={handleNotificationLocal} />
+      <Button title='enviar' onPress={handleCallNotifications} />
     </View>
   )
 }

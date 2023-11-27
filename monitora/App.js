@@ -6,17 +6,9 @@ import Principal from './src/page/Home';
 import Inicio from './src/page';
 import Cadastro from './src/page/cadastrar';
 import CadastroPaciente from './src/page/cadastrarPaciente';
-import FormPaciente from './src/components/formPaciente';
+
 
 const Stack = createStackNavigator();
-
-Notifications.setNotificationHandler({
-  handleNotification: async ()=>({
-    shouldPlaySound: true,
-    shouldShowAlert: true,
-    shouldSetBadge: true,
-  })
-})
 
 const App = () => {
   return (

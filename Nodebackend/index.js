@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const port = 3000; // ou a porta que você preferir
 
-const brokerUrl = 'mqtt://34.151.202.171';
+const brokerUrl = 'mqtt://34.95.162.128';
 const topico = 'IFG/heart';
 
 let lastBPM = null;

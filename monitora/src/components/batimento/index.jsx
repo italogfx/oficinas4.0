@@ -11,7 +11,6 @@ export default function Home() {
 
   const databaseData = [
     { id: 1, title: 'Eva Maria', description: '80 BPM' },
-    { id: 2, title: 'Isabel', description: '120 BPM' },
   ];
 
   const [ultimoBPM, setUltimoBPM] = useState(null);
