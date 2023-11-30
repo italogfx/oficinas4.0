@@ -15,7 +15,7 @@ export default function Login() {
     <PaperProvider>
       <View style={styles.container}>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Image source={require('../../../assets/logo.png')} style={{ width: 200, height: 200 }}/>
+      <Image source={require('../../../assets/logo.png')} style={{ width: 700, height: 200 }}/>
       <StatusBar style="auto" />
       <TextInput style={styles.caixaDeTexto}
       label="Email"

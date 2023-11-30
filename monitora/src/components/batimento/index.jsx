@@ -3,39 +3,130 @@ import { View, Image, TextInput, StatusBar, StyleSheet , Text, ScrollView } from
 import { Card, Title,Paragraph,Button, Appbar, Provider as PaperProvider } from 'react-native-paper';
 import {useNavigation } from '@react-navigation/native';
 import { WebSocket } from 'react-native-gifted-chat'; 
+import * as Notifications from 'expo-notifications'
+import { Modal, Portal } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 export default function Home() {
-  const mensage = '80 BPM';
   const navigation = useNavigation();
-
+  const numero = 180
   const databaseData = [
-    { id: 1, title: 'Eva Maria', description: '80 BPM' },
+    { id: 1, title: 'Eva Maria'},
   ];
 
+  const [estadoNotificacao, setEstadoNotificacao] = useState("");
+
   const [ultimoBPM, setUltimoBPM] = useState(null);
+  const abaixo = async() =>{
+    await Notifications.scheduleNotificationAsync(
+      {
+        content:{
+          title: "BPM em alerta",
+          body:"Abaixo da média informada"
+        },
+        trigger:{
+          seconds:1,
+        }
+      }
+    )
+  }
+  const acima = async() =>{
+    await Notifications.scheduleNotificationAsync(
+        {
+          content:{
+            title: "Paciente Eva: BPM em alerta",
+            body:"Acima da média informada"
+          },
+          trigger:{
+            seconds:1,
+          }
+
+        }
+      )
+  }
 
   const obterUltimoBPM = async () => {
     try {
-      const response = await fetch('http://192.168.1.229:3000/obterUltimoBPM');
+      const response = await fetch('http://172.20.10.2:3000/obterUltimoBPM');
       const data = await response.json();
       setUltimoBPM(data.bpm);
     } catch (error) {
       console.error('Erro ao obter último BPM:', error);
     }
-  };
-  useEffect(() => {
-    // Chama ao montar o componente
-    obterUltimoBPM();
 
-    // Atualiza automaticamente a cada 5 segundos (ajuste conforme necessário)
+  };
+  // const teste = async() =>{
+  //   const {status} = await Notifications.getPermissionsAsync();
+    
+  //   const numeroInt = 80
+  //   // const numeroInt = +ultimoBPM
+  //     if(numeroInt <= 20 && estadoNotificacao !== "-1 "){
+  //       console.log('abaixo');
+  //       abaixo();
+  //       setEstadoNotificacao("-1");
+  //       console.log(estadoNotificacao);
+        
+  //     }else if(numeroInt >= 150 && estadoNotificacao != 1){
+        
+  //       console.log('acima');
+  //       acima();
+  //       setEstadoNotificacao(1);
+  //       console.log("agora é 1");
+  //     }else{
+  //       setEstadoNotificacao(0);
+  //       console.log("agora é 0");
+  //     }
+  // }
+
+  useEffect(() => {
+    obterUltimoBPM();
+  
+
     const intervalId = setInterval(() => {
       obterUltimoBPM();
+    
+      
+  
     }, 5000);
 
     // Limpa o intervalo quando o componente é desmontado
     return () => clearInterval(intervalId);
   }, []); 
+
+
+  useEffect(() => {
+    // Lógica para notificação quando ultimoBPM é atualizado
+    const numeroInt = 20;
+    // const numeroInt = +ultimoBPM;
+
+
+    if (numeroInt <= 20 && estadoNotificacao !== "-1") {
+      console.log('abaixo');
+      abaixo();
+      setEstadoNotificacao("-1");
+      console.log(estadoNotificacao)
+    } else if (numeroInt >= 150 && estadoNotificacao !== "1") {
+      console.log('acima');
+      acima();
+      setEstadoNotificacao("1");
+      console.log(estadoNotificacao)
+    } else if (numeroInt > 20 && numeroInt < 150 && estadoNotificacao !== "0") {
+      setEstadoNotificacao("0");
+      console.log(estadoNotificacao)
+    }
+  }, [ultimoBPM, estadoNotificacao]);
+
+  const [visible, setVisible] = useState(false);
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
 
 
   return (
@@ -50,8 +141,14 @@ export default function Home() {
       </Appbar.Header>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ScrollView contentContainerStyle={styles.bomdia}>
+      <Portal>
+          <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalContainer}>
+          <Icon name="close" size={30} onPress={hideModal} />
+            <Text style={styles.textBat}> {ultimoBPM !== null ? ultimoBPM : 'Nenhum dado recebido ainda.'}</Text>
+          </Modal>
+        </Portal>
         {databaseData.map((data) => (
-          <Card key={data.id} style={styles.card}>
+          <Card key={data.id} style={styles.card} onPress={showModal}>
             <Card.Content>
               <Title>{data.title}</Title>
               <Paragraph>Último BPM: {ultimoBPM !== null ? ultimoBPM : 'Nenhum dado recebido ainda.'}</Paragraph>
@@ -64,9 +161,19 @@ export default function Home() {
     </PaperProvider>
   );
 }
-
-
 const styles = StyleSheet.create({
+  modalContainer:{
+    backgroundColor: 'white',
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textBat:{
+    padding: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: 60
+  },
   bomdia: {
     padding: 36,
   },
