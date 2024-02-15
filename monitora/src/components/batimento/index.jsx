@@ -29,7 +29,7 @@ export default function Home() {
     await Notifications.scheduleNotificationAsync(
       {
         content:{
-          title: "BPM em alerta",
+          title: "Paciente Eva: BPM em alerta",
           body:"Abaixo da média informada"
         },
         trigger:{
@@ -63,28 +63,6 @@ export default function Home() {
     }
 
   };
-  // const teste = async() =>{
-  //   const {status} = await Notifications.getPermissionsAsync();
-    
-  //   const numeroInt = 80
-  //   // const numeroInt = +ultimoBPM
-  //     if(numeroInt <= 20 && estadoNotificacao !== "-1 "){
-  //       console.log('abaixo');
-  //       abaixo();
-  //       setEstadoNotificacao("-1");
-  //       console.log(estadoNotificacao);
-        
-  //     }else if(numeroInt >= 150 && estadoNotificacao != 1){
-        
-  //       console.log('acima');
-  //       acima();
-  //       setEstadoNotificacao(1);
-  //       console.log("agora é 1");
-  //     }else{
-  //       setEstadoNotificacao(0);
-  //       console.log("agora é 0");
-  //     }
-  // }
 
   useEffect(() => {
     obterUltimoBPM();
@@ -92,10 +70,8 @@ export default function Home() {
 
     const intervalId = setInterval(() => {
       obterUltimoBPM();
-    
-      
   
-    }, 5000);
+    }, 1000);
 
     // Limpa o intervalo quando o componente é desmontado
     return () => clearInterval(intervalId);
@@ -104,8 +80,7 @@ export default function Home() {
 
   useEffect(() => {
     // Lógica para notificação quando ultimoBPM é atualizado
-    const numeroInt = 20;
-    // const numeroInt = +ultimoBPM;
+    const numeroInt = +ultimoBPM;
 
 
     if (numeroInt <= 20 && estadoNotificacao !== "-1") {
@@ -128,6 +103,8 @@ export default function Home() {
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
+  const numeroTeste = 110;
+
 
   return (
     <PaperProvider >
@@ -144,14 +121,15 @@ export default function Home() {
       <Portal>
           <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalContainer}>
           <Icon name="close" size={30} onPress={hideModal} />
-            <Text style={styles.textBat}> {ultimoBPM !== null ? ultimoBPM : 'Nenhum dado recebido ainda.'}</Text>
+            <Text style={styles.textBat}> {numeroTeste !== null ? numeroTeste : 'Nenhum dado recebido ainda.'}</Text>
+            <Text style={styles.textSub}>BPM</Text>
           </Modal>
         </Portal>
         {databaseData.map((data) => (
           <Card key={data.id} style={styles.card} onPress={showModal}>
             <Card.Content>
               <Title>{data.title}</Title>
-              <Paragraph>Último BPM: {ultimoBPM !== null ? ultimoBPM : 'Nenhum dado recebido ainda.'}</Paragraph>
+              <Paragraph>Último BPM: {numeroTeste !== null ? numeroTeste : 'Nenhum dado recebido ainda.'}</Paragraph>
             </Card.Content>
           </Card>
         ))}
@@ -167,12 +145,16 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    width: 500,
+    marginLeft: 150,
+    borderRadius: 20,
   },
   textBat:{
     padding: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    fontSize: 60
+    fontWeight: 'bold',
+    fontSize: 80
   },
   bomdia: {
     padding: 36,
@@ -213,6 +195,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingTop: 8,
     marginBottom: 20,
+  },
+  textSub:{
+    marginTop: -50,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#676667',
   },
 });
 
